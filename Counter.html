@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>JS Bin</title>
+</head>
+<body>
+<script src="https://fb.me/react-15.1.0.js"></script>
+<script src="https://fb.me/react-dom-15.1.0.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.js"></script>
+<div id="root"></div>
+</body>
+</html>
+<script>
+    function counter(state = 0, action) {
+
+        switch(action.type) {
+            case 'INCREMENT':
+                return state += action.unit;
+            case 'DECREMENT':
+                return state -= action.unit;
+            default:
+                return state;
+        }
+    };
+
+    const createStore = (reducer) => {
+        let state = 0;
+        let listeners = [];
+
+        const getState = () => state;
+
+        const dispatch = (action) => {
+            state = reducer(state, action);
+            listeners.forEach(l => l());
+
+        };
+
+        const subscribe = (listener) => {
+            listeners.push(listener);
+            return () => {
+                //not really nescessary when we have only 1 listener
+                listeners = listeners.filter(l => l != listener);
+            };
+
+        };
+
+        return { getState: getState, dispatch: dispatch, subscribe: subscribe };
+
+    }
+
+
+
+    //const {createStore} = Redux;
+    const store = createStore(counter);
+
+    /*class Counter extends React.Component {
+      constructor(props) {
+        super(props);
+        //this.props.value;
+        //this.handleIncrement = this.handleIncrement.bind(this);
+        //this.handleDecrement = this.handleDecrement.bind(this);
+      }
+
+      handleIncrement = () => {
+
+      }
+
+      render() {
+        const { value, increase, decrease } = this.props;
+        return ( <div>
+            <p>{value}</p>
+            <button onClick={increase}>+</button>
+            <button onClick={decrease}>-</button>
+          </div>);
+      }
+
+    }*/
+    const Counter = ({ value, increase, decrease }) =>
+    ( <div>
+    <p>{value}</p>
+    <button onClick={increase}>+</button>
+        <button onClick={decrease}>-</button>
+        </div>);
+
+
+    const render = () => {
+        console.log(store.getState());
+        ReactDOM.render(<Counter value={store.getState()} increase={() => store.dispatch({type : 'INCREMENT', unit : 2})} decrease={() => store.dispatch({type : 'DECREMENT', unit : 2})}
+        />
+            , document.getElementById('root'));
+    }
+
+    store.subscribe(render);
+    render();
+
+    /*const render = () => {
+      document.getElementById('text').value = store.getState();
+      console.log(store.getState());
+    }
+
+    store.subscribe(render);
+    render();
+
+    document.addEventListener('click', () => {
+      store.dispatch({type : 'INCREMENT', unit : 2})
+    });*/
+</script>
